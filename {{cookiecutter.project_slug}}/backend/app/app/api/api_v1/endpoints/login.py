@@ -36,7 +36,7 @@ async def login_access_token(
         raise HTTPException(status_code=400, detail="Inactive user")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return {
-        "access_token": security.create_access_token(
+        "access_token": await security.create_access_token(
             user.id, expires_delta=access_token_expires
         ),
         "token_type": "bearer",
@@ -63,10 +63,8 @@ async def recover_password(email: str, db: AsyncSession = Depends(deps.async_get
             status_code=404,
             detail="The user with this username does not exist in the system.",
         )
-    password_reset_token = generate_password_reset_token(email=email)
-    send_reset_password_email(
-        email_to=user.email, email=email, token=password_reset_token
-    )
+    password_reset_token = await generate_password_reset_token(email=email)
+    await send_reset_password_email(email_to=user.email, email=email, token=password_reset_token)
     return {"msg": "Password recovery email sent"}
 
 
@@ -79,7 +77,7 @@ async def reset_password(
     """
     Reset password
     """
-    email = verify_password_reset_token(token)
+    email = await verify_password_reset_token(token)
     if not email:
         raise HTTPException(status_code=400, detail="Invalid token")
     user = await crud.user.get_by_email(db, email=email)
@@ -90,7 +88,7 @@ async def reset_password(
         )
     elif not crud.user.is_active(user):
         raise HTTPException(status_code=400, detail="Inactive user")
-    hashed_password = get_password_hash(new_password)
+    hashed_password = await get_password_hash(new_password)
     user.hashed_password = hashed_password
     db.add(user)
     await db.commit()

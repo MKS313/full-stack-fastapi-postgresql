@@ -3,7 +3,7 @@ from typing import Any, List
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
-#from sqlalchemy.orm import Session
+# from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud, models, schemas
@@ -46,9 +46,7 @@ async def create_user(
         )
     user = await crud.user.create(db, obj_in=user_in)
     if settings.EMAILS_ENABLED and user_in.email:
-        send_new_account_email(
-            email_to=user_in.email, username=user_in.email, password=user_in.password
-        )
+        await send_new_account_email(email_to=user_in.email, username=user_in.email, password=user_in.password)
     return user
 
 
@@ -151,6 +149,7 @@ async def update_user(
     user = await crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
 
+
 @router.delete("/{id}", response_model=schemas.User)
 async def delete_user(
     *,
@@ -169,3 +168,4 @@ async def delete_user(
         )
     user = await crud.user.remove(db=db, id=id)
     return user
+

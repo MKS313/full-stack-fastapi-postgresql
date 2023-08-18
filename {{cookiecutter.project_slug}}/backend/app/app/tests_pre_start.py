@@ -3,7 +3,7 @@ import asyncio
 from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
 
 #from app.db.session import SessionLocal
-from app.db.session import async_session, engine_async
+from app.db.session import async_session, async_engine
 from app.db import base  # noqa: F401
 from app.db.init_db import init_db
 
@@ -25,7 +25,7 @@ async def init() -> None:
     try:
         # Try to create session to check if DB is awake
         #db = SessionLocal()
-        async with engine_async.begin() as conn:
+        async with async_engine.begin() as conn:
             logger.info("DROP DATABASE")
             await conn.run_sync(base.Base.metadata.drop_all)
             logger.info("CREATE DATABASE")

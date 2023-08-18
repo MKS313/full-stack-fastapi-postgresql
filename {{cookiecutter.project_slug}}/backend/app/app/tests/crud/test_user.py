@@ -92,4 +92,4 @@ async def test_update_user(async_get_db: AsyncSession) -> None:
     user_2 = await crud.user.get(async_get_db, id=user.id)
     assert user_2
     assert user.email == user_2.email
-    assert verify_password(new_password, user_2.hashed_password)
+    assert await verify_password(new_password, user_2.hashed_password)

@@ -9,7 +9,7 @@ from httpx import AsyncClient
 
 from app.core.config import settings
 #from app.db.session import SessionLocal
-from app.db.session import async_session, engine_async
+from app.db.session import async_session, async_engine
 from app.main import app
 from app.tests.utils.user import authentication_token_from_email
 from app.tests.utils.utils import get_superuser_token_headers
@@ -64,7 +64,7 @@ def event_loop(request):
 async def clear_db(async_get_db: AsyncSession) -> None:
         try:
             # Try to create session to check if DB is awake
-            async with engine_async.begin() as conn:
+            async with async_engine.begin() as conn:
                 await conn.run_sync(base.Base.metadata.drop_all)
                 await conn.run_sync(base.Base.metadata.create_all)
             await init_db(db=async_get_db)

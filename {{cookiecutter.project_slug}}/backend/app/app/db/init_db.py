@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud, schemas
 from app.core.config import settings
-from app.db import base  # noqa: F401
+from app.db import session  # noqa: F401
+from app.db.base_class import Base
 
 # make sure all SQL Alchemy models are imported (app.db.base) before initializing DB
 # otherwise, SQL Alchemy might fail to initialize relationships properly
@@ -14,7 +15,7 @@ async def init_db(db: AsyncSession) -> None:
     # Tables should be created with Alembic migrations
     # But if you don't want to use migrations, create
     # the tables un-commenting the next line
-    # Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=session.engine)
 
     user = await crud.user.get_by_email(db, email=settings.FIRST_SUPERUSER)
     if not user:
